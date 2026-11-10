@@ -16,6 +16,8 @@ from typing import Callable, List
 
 from dominio.excepciones.regla_dominio_error import ReglaDominioError
 from vistas import estilos as e
+from configuracion.rutas import carpeta_datos
+from dominio.excepciones.regla_dominio_error import ReglaDominioError
 
 try:
     import fitz            # PyMuPDF: convierte las páginas del PDF en imágenes
@@ -23,7 +25,7 @@ except ImportError:
     fitz = None
 
 # <raíz del proyecto>/reportes (este archivo está en <raíz>/src/vistas/)
-CARPETA_REPORTES = Path(__file__).resolve().parents[2] / "reportes"
+CARPETA_REPORTES = carpeta_datos() / "reportes"
 
 
 @dataclass

@@ -8,6 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from xml.sax.saxutils import escape
 
+from configuracion.rutas import carpeta_datos
+from dominio.entidades.reporte import Reporte
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle
@@ -18,8 +20,8 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 from dominio.entidades.reporte import Reporte
 
 NOMBRE_APLICACION = "Sistema de Gestión de Proveedores y Productos"
-# Carpeta <raíz del proyecto>/reportes (este archivo está en <raíz>/src/servicios/)
-CARPETA_REPORTES = Path(__file__).resolve().parents[2] / "reportes"
+# Carpeta de datos del usuario (no la carpeta del .exe, que es temporal)
+CARPETA_REPORTES = carpeta_datos() / "reportes"
 
 _TINTA = colors.HexColor("#0F172A")
 _AZUL = colors.HexColor("#2563EB")
