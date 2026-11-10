@@ -113,7 +113,20 @@ class BaseDemoTest(unittest.TestCase):
         for fila in filas:
             self.assertTrue(seguridad.verificar(
                 CREDENCIALES_DEMO[fila.nombre_usuario], fila.contrasena_hash))
-
+    def test_texto_no_distingue_mayusculas(self):
+        asegurar_base()
+        self.assertEqual(
+            _escalar("SELECT COUNT(*) FROM usuario WHERE nombre_usuario = 'ADMIN'"), 1)
+        self.assertEqual(
+            _escalar("SELECT COUNT(*) FROM categoria WHERE nombre = 'lácteos'"), 1)
+        con = obtener_conexion()
+        try:
+            with self.assertRaises(sqlite3.IntegrityError):
+                con.cursor().execute(
+                    "INSERT INTO categoria (nombre, descripcion) VALUES (?, ?)",
+                    "LÁCTEOS", "duplicada")
+        finally:
+            con.close()
 
 if __name__ == "__main__":
     unittest.main()

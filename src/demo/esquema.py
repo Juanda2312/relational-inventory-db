@@ -1,50 +1,46 @@
-"""Esquema SQLite: las 9 tablas del diccionario de datos.
-Se dejan los tipos declarados DECIMAL(12,2) y DATETIME2(0) para que actúen los
-convertidores de repositorios/conexion.py."""
-
 ESQUEMA = """
 CREATE TABLE ciudad (
     id_ciudad    INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre       TEXT NOT NULL,
-    departamento TEXT NOT NULL
+    nombre       TEXT NOT NULL COLLATE NOCASE,
+    departamento TEXT NOT NULL COLLATE NOCASE
 );
 
 CREATE TABLE categoria (
     id_categoria INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre       TEXT NOT NULL UNIQUE,
+    nombre       TEXT NOT NULL UNIQUE COLLATE NOCASE,
     descripcion  TEXT,
     estado       INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE tipo_documento (
     id_tipo_documento INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre            TEXT NOT NULL UNIQUE,
+    nombre            TEXT NOT NULL UNIQUE COLLATE NOCASE,
     descripcion       TEXT
 );
 
 CREATE TABLE rol (
     id_rol      INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre      TEXT NOT NULL UNIQUE,
+    nombre      TEXT NOT NULL UNIQUE COLLATE NOCASE,
     descripcion TEXT
 );
 
 CREATE TABLE proveedor (
     id_proveedor INTEGER PRIMARY KEY AUTOINCREMENT,
-    nit          TEXT NOT NULL UNIQUE,
-    nombre       TEXT NOT NULL,
+    nit          TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    nombre       TEXT NOT NULL COLLATE NOCASE,
     direccion    TEXT,
     estado       INTEGER NOT NULL DEFAULT 1,
     telefono     TEXT,
-    correo       TEXT,
+    correo       TEXT COLLATE NOCASE,
     id_ciudad    INTEGER NOT NULL REFERENCES ciudad (id_ciudad)
 );
 
 CREATE TABLE producto (
     id_producto   INTEGER PRIMARY KEY AUTOINCREMENT,
-    codigo        TEXT NOT NULL UNIQUE,
-    nombre        TEXT NOT NULL,
+    codigo        TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    nombre        TEXT NOT NULL COLLATE NOCASE,
     descripcion   TEXT,
-    unidad_medida TEXT,
+    unidad_medida TEXT COLLATE NOCASE,
     estado        INTEGER NOT NULL DEFAULT 1,
     id_categoria  INTEGER NOT NULL REFERENCES categoria (id_categoria)
 );
@@ -60,14 +56,14 @@ CREATE TABLE proveedor_producto (
 
 CREATE TABLE usuario (
     id_usuario        INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre_usuario    TEXT NOT NULL UNIQUE,
-    nombre            TEXT NOT NULL,
-    apellido          TEXT NOT NULL,
+    nombre_usuario    TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    nombre            TEXT NOT NULL COLLATE NOCASE,
+    apellido          TEXT NOT NULL COLLATE NOCASE,
     contrasena_hash   TEXT NOT NULL,
     estado            INTEGER NOT NULL DEFAULT 1,
-    correo            TEXT,
+    correo            TEXT COLLATE NOCASE,
     telefono          TEXT,
-    numero_documento  TEXT NOT NULL,
+    numero_documento  TEXT NOT NULL COLLATE NOCASE,
     id_rol            INTEGER NOT NULL REFERENCES rol (id_rol),
     id_tipo_documento INTEGER NOT NULL REFERENCES tipo_documento (id_tipo_documento),
     creado_por        INTEGER REFERENCES usuario (id_usuario)
