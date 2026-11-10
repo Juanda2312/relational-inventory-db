@@ -1,6 +1,6 @@
 """Repositorio: acceso a la tabla proveedor_producto (llave primaria compuesta)."""
 from dominio.entidades.proveedor_producto import ProveedorProducto
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class ProveedorProductoRepositorio:

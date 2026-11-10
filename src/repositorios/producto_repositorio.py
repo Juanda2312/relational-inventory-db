@@ -1,6 +1,6 @@
 """Repositorio: acceso a la tabla producto."""
 from dominio.entidades.producto import Producto
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class ProductoRepositorio:

@@ -1,5 +1,5 @@
 """Repositorio: consultas de lectura para los reportes en PDF."""
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class ReporteRepositorio:

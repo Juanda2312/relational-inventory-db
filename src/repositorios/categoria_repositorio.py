@@ -1,6 +1,6 @@
 """Repositorio: acceso a la tabla categoria."""
 from dominio.entidades.categoria import Categoria
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class CategoriaRepositorio:

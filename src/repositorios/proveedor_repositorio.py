@@ -1,6 +1,6 @@
 """Repositorio: acceso a la tabla proveedor."""
 from dominio.entidades.proveedor import Proveedor
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class ProveedorRepositorio:

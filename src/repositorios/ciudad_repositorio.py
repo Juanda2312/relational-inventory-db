@@ -1,6 +1,6 @@
 """Repositorio: acceso a la tabla ciudad."""
 from dominio.entidades.ciudad import Ciudad
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class CiudadRepositorio:

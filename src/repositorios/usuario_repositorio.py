@@ -1,6 +1,6 @@
 """Repositorio: acceso a la tabla usuario."""
 from dominio.entidades.usuario import Usuario
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class UsuarioRepositorio:
@@ -204,8 +204,7 @@ class UsuarioRepositorio:
 
     @staticmethod
     def _bloquear_roles(cur, id_rol):
-        cur.execute("SELECT nombre FROM rol WITH (TABLOCKX, HOLDLOCK) WHERE id_rol = ?",
-                    id_rol)
+        cur.execute("SELECT nombre FROM rol WHERE id_rol = ?", id_rol)
         if cur.fetchone() is None:
             raise ValueError("El rol seleccionado ya no existe.")
 
