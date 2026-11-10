@@ -13,3 +13,8 @@ venv/
 
 # PDF generados (la carpeta reportes/ sí se versiona, vacía, con .gitkeep)
 reportes/*.pdf
+
+# Build del ejecutable
+build/
+dist/
+*.spec

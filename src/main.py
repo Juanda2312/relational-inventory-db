@@ -1,5 +1,8 @@
 """Punto de entrada. Aquí se arman las piezas (repositorios -> servicios ->
 controladores -> vistas), igual que una clase de configuración."""
+import tkinter as tk
+from tkinter import messagebox
+
 from controladores.autenticacion_controlador import AutenticacionControlador
 from controladores.bitacora_controlador import BitacoraControlador
 from controladores.categoria_controlador import CategoriaControlador
@@ -10,6 +13,7 @@ from controladores.proveedor_producto_controlador import ProveedorProductoContro
 from controladores.proveedor_controlador import ProveedorControlador
 from controladores.reporte_controlador import ReporteControlador
 from controladores.usuario_controlador import UsuarioControlador
+from demo.base import asegurar_base
 from repositorios.bitacora_repositorio import BitacoraRepositorio
 from repositorios.categoria_repositorio import CategoriaRepositorio
 from repositorios.ciudad_repositorio import CiudadRepositorio
@@ -35,7 +39,29 @@ from vistas.login_vista import LoginVista
 from vistas.menu_principal_vista import MenuPrincipalVista
 
 
+def _preparar_base():
+    """Crea la base de la demo si hace falta. Devuelve False si no se pudo.
+
+    El .exe se compila con --windowed (sin consola): sin este cuadro de diálogo,
+    un fallo al crear la base se vería como «la app no abre»."""
+    try:
+        asegurar_base()
+    except Exception as error:
+        raiz = tk.Tk()
+        raiz.withdraw()
+        messagebox.showerror(
+            "Gestión de Proveedores",
+            f"No se pudo preparar la base de datos de la demo:\n{error}",
+            parent=raiz)
+        raiz.destroy()
+        return False
+    return True
+
+
 def main():
+    if not _preparar_base():
+        return
+
     # Repositorios
     usuario_repositorio = UsuarioRepositorio()
     bitacora_repositorio = BitacoraRepositorio()

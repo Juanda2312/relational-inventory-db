@@ -1,5 +1,5 @@
 """Repositorio: consultas de lectura para las opciones del menú Consultas."""
-from repositorios.conexion_sqlserver import obtener_conexion
+from repositorios.conexion import obtener_conexion
 
 
 class ConsultaRepositorio:

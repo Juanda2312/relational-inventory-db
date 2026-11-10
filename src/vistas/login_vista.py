@@ -4,7 +4,10 @@ from tkinter import messagebox, ttk
 
 from dominio.excepciones.regla_dominio_error import ReglaDominioError
 from vistas import estilos as e
+from demo.datos import CREDENCIALES_DEMO
 
+_ROL_DEMO = {"admin": "Administrador", "tradicional": "Tradicional",
+             "esporadico": "Esporádico"}
 
 class LoginVista:
 
@@ -42,7 +45,12 @@ class LoginVista:
         ttk.Label(marco, text="Bienvenido", style="Seccion.Tarjeta.TLabel",
                   font=(e.FAMILIA, 20, "bold")).pack(anchor="w")
         ttk.Label(marco, text="Ingresa tus credenciales para continuar.",
-                  style="Suave.Tarjeta.TLabel").pack(anchor="w", pady=(2, 18))
+                  style="Suave.Tarjeta.TLabel").pack(anchor="w", pady=(2, 8))
+        pista = "\n".join(
+            f"Demo · {usuario} / {clave} ({_ROL_DEMO.get(usuario, '')})"
+            for usuario, clave in CREDENCIALES_DEMO.items())
+        ttk.Label(marco, text=pista, style="Suave.Tarjeta.TLabel",
+                  font=(e.FAMILIA, 9), justify="left").pack(anchor="w", pady=(0, 10))
 
         ttk.Label(marco, text="Usuario", style="Campo.Tarjeta.TLabel").pack(anchor="w", pady=(0, 4))
         entrada_usuario = ttk.Entry(marco)

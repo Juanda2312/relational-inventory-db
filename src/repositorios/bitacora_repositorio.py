@@ -1,5 +1,7 @@
 """Repositorio: acceso a la tabla bitacora."""
-from repositorios.conexion_sqlserver import obtener_conexion
+from datetime import datetime, time, timedelta
+
+from repositorios.conexion import obtener_conexion
 
 
 class BitacoraRepositorio:
@@ -13,10 +15,11 @@ class BitacoraRepositorio:
             parametros.append(nombre_usuario)
         if desde:
             condiciones.append("b.fecha_hora_entrada >= ?")
-            parametros.append(desde)
+            parametros.append(datetime.combine(desde, time.min))
         if hasta:
-            condiciones.append("b.fecha_hora_entrada < DATEADD(day, 1, ?)")
-            parametros.append(hasta)
+            # «hasta» incluye todo ese día: se compara contra la medianoche siguiente
+            condiciones.append("b.fecha_hora_entrada < ?")
+            parametros.append(datetime.combine(hasta + timedelta(days=1), time.min))
         where = " WHERE " + " AND ".join(condiciones) if condiciones else ""
 
         con = obtener_conexion()
@@ -48,12 +51,10 @@ class BitacoraRepositorio:
         try:
             cur = con.cursor()
             cur.execute(
-                """INSERT INTO bitacora (id_usuario, fecha_hora_entrada)
-                   OUTPUT INSERTED.id_bitacora
-                   VALUES (?, SYSDATETIME())""",
-                id_usuario,
+                "INSERT INTO bitacora (id_usuario, fecha_hora_entrada) VALUES (?, ?)",
+                id_usuario, datetime.now(),
             )
-            id_bitacora = cur.fetchone()[0]
+            id_bitacora = cur.lastrowid
             con.commit()
             return id_bitacora
         finally:
@@ -65,8 +66,8 @@ class BitacoraRepositorio:
         try:
             cur = con.cursor()
             cur.execute(
-                "UPDATE bitacora SET fecha_hora_salida = SYSDATETIME() WHERE id_bitacora = ?",
-                id_bitacora,
+                "UPDATE bitacora SET fecha_hora_salida = ? WHERE id_bitacora = ?",
+                datetime.now(), id_bitacora,
             )
             con.commit()
         finally:
