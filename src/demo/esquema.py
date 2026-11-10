@@ -1,46 +1,46 @@
 ESQUEMA = """
 CREATE TABLE ciudad (
     id_ciudad    INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre       TEXT NOT NULL COLLATE NOCASE,
-    departamento TEXT NOT NULL COLLATE NOCASE
+    nombre       TEXT NOT NULL COLLATE NOCASE_UNICODE,
+    departamento TEXT NOT NULL COLLATE NOCASE_UNICODE
 );
 
 CREATE TABLE categoria (
     id_categoria INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre       TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    nombre       TEXT NOT NULL UNIQUE COLLATE NOCASE_UNICODE,
     descripcion  TEXT,
     estado       INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE tipo_documento (
     id_tipo_documento INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre            TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    nombre            TEXT NOT NULL UNIQUE COLLATE NOCASE_UNICODE,
     descripcion       TEXT
 );
 
 CREATE TABLE rol (
     id_rol      INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre      TEXT NOT NULL UNIQUE COLLATE NOCASE,
+    nombre      TEXT NOT NULL UNIQUE COLLATE NOCASE_UNICODE,
     descripcion TEXT
 );
 
 CREATE TABLE proveedor (
     id_proveedor INTEGER PRIMARY KEY AUTOINCREMENT,
-    nit          TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    nombre       TEXT NOT NULL COLLATE NOCASE,
+    nit          TEXT NOT NULL UNIQUE COLLATE NOCASE_UNICODE,
+    nombre       TEXT NOT NULL COLLATE NOCASE_UNICODE,
     direccion    TEXT,
     estado       INTEGER NOT NULL DEFAULT 1,
     telefono     TEXT,
-    correo       TEXT COLLATE NOCASE,
+    correo       TEXT COLLATE NOCASE_UNICODE,
     id_ciudad    INTEGER NOT NULL REFERENCES ciudad (id_ciudad)
 );
 
 CREATE TABLE producto (
     id_producto   INTEGER PRIMARY KEY AUTOINCREMENT,
-    codigo        TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    nombre        TEXT NOT NULL COLLATE NOCASE,
+    codigo        TEXT NOT NULL UNIQUE COLLATE NOCASE_UNICODE,
+    nombre        TEXT NOT NULL COLLATE NOCASE_UNICODE,
     descripcion   TEXT,
-    unidad_medida TEXT COLLATE NOCASE,
+    unidad_medida TEXT COLLATE NOCASE_UNICODE,
     estado        INTEGER NOT NULL DEFAULT 1,
     id_categoria  INTEGER NOT NULL REFERENCES categoria (id_categoria)
 );
@@ -56,14 +56,14 @@ CREATE TABLE proveedor_producto (
 
 CREATE TABLE usuario (
     id_usuario        INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre_usuario    TEXT NOT NULL UNIQUE COLLATE NOCASE,
-    nombre            TEXT NOT NULL COLLATE NOCASE,
-    apellido          TEXT NOT NULL COLLATE NOCASE,
+    nombre_usuario    TEXT NOT NULL UNIQUE COLLATE NOCASE_UNICODE,
+    nombre            TEXT NOT NULL COLLATE NOCASE_UNICODE,
+    apellido          TEXT NOT NULL COLLATE NOCASE_UNICODE,
     contrasena_hash   TEXT NOT NULL,
     estado            INTEGER NOT NULL DEFAULT 1,
-    correo            TEXT COLLATE NOCASE,
+    correo            TEXT COLLATE NOCASE_UNICODE,
     telefono          TEXT,
-    numero_documento  TEXT NOT NULL COLLATE NOCASE,
+    numero_documento  TEXT NOT NULL COLLATE NOCASE_UNICODE,
     id_rol            INTEGER NOT NULL REFERENCES rol (id_rol),
     id_tipo_documento INTEGER NOT NULL REFERENCES tipo_documento (id_tipo_documento),
     creado_por        INTEGER REFERENCES usuario (id_usuario)

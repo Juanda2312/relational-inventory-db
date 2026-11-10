@@ -86,5 +86,10 @@ def obtener_conexion() -> Conexion:
     carpeta_datos().mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(str(ruta_bd()), detect_types=sqlite3.PARSE_DECLTYPES)
     con.row_factory = _fabrica_filas
+    con.create_collation("NOCASE_UNICODE", _comparar_sin_mayusculas)
     con.execute("PRAGMA foreign_keys = ON")
     return Conexion(con)
+
+def _comparar_sin_mayusculas(a, b):
+    a, b = a.casefold(), b.casefold()
+    return (a > b) - (a < b)
