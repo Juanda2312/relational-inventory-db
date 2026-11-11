@@ -1,0 +1,101 @@
+name: Build demo
+
+# Se ejecuta a mano desde la pestaña Actions -> Build demo -> Run workflow.
+# Si escribes una etiqueta de Release existente (p. ej. v1.0-demo), sube los
+# archivos a ese Release. Si la dejas vacía, solo los guarda como artefactos.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Etiqueta del Release donde subir los archivos (opcional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            nombre: windows
+          - os: ubuntu-22.04        # Ubuntu antiguo: el binario corre en más distribuciones
+            nombre: linux
+          - os: macos-latest        # Apple Silicon (arm64)
+            nombre: macos
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tkinter en Linux
+        if: matrix.nombre == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk tk-dev
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-build.txt
+
+      - name: Pruebas
+        run: python -m unittest discover -s tests -t . -v
+        env:
+          # Las pruebas no abren ventanas; esto evita errores de pantalla en Linux
+          DISPLAY: ":99"
+
+      # ---------------------------------------------------------------- Windows
+      - name: Compilar (Windows)
+        if: matrix.nombre == 'windows'
+        run: >
+          pyinstaller --noconfirm --onefile --windowed --name ProveedoresDemo
+          --paths src --collect-all pymupdf src/main.py
+
+      # ------------------------------------------------------------------ Linux
+      - name: Compilar (Linux)
+        if: matrix.nombre == 'linux'
+        run: |
+          pyinstaller --noconfirm --onefile --name ProveedoresDemo \
+            --paths src --collect-all pymupdf src/main.py
+          mv dist/ProveedoresDemo dist/ProveedoresDemo-linux
+          chmod +x dist/ProveedoresDemo-linux
+
+      # ------------------------------------------------------------------ macOS
+      - name: Compilar (macOS)
+        if: matrix.nombre == 'macos'
+        run: |
+          pyinstaller --noconfirm --onedir --windowed --name ProveedoresDemo \
+            --paths src --collect-all pymupdf src/main.py
+          cd dist
+          ditto -c -k --sequesterRsrc --keepParent ProveedoresDemo.app ProveedoresDemo-macos.zip
+
+      # ---------------------------------------------------------------- Subida
+      - name: Guardar como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProveedoresDemo-${{ matrix.nombre }}
+          path: |
+            dist/ProveedoresDemo.exe
+            dist/ProveedoresDemo-linux
+            dist/ProveedoresDemo-macos.zip
+          if-no-files-found: error
+
+      - name: Subir al Release
+        if: ${{ inputs.tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for f in dist/ProveedoresDemo.exe dist/ProveedoresDemo-linux dist/ProveedoresDemo-macos.zip; do
+            if [ -f "$f" ]; then
+              gh release upload "${{ inputs.tag }}" "$f" --clobber
+            fi
+          done
