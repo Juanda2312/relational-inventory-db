@@ -14,17 +14,16 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import Callable, List
 
-from dominio.excepciones.regla_dominio_error import ReglaDominioError
-from vistas import estilos as e
 from configuracion.rutas import carpeta_datos
 from dominio.excepciones.regla_dominio_error import ReglaDominioError
+from vistas import estilos as e
 
 try:
     import fitz            # PyMuPDF: convierte las páginas del PDF en imágenes
 except ImportError:
     fitz = None
 
-# <raíz del proyecto>/reportes (este archivo está en <raíz>/src/vistas/)
+# Carpeta de datos del usuario (no la del .exe, que es temporal)
 CARPETA_REPORTES = carpeta_datos() / "reportes"
 
 
@@ -201,11 +200,10 @@ class ReportesVista:
 
         def rueda(ev):
             if self.lienzo is not None:
-                self.lienzo.yview_scroll(-1 * (ev.delta // 120), "units")
+                self.lienzo.yview_scroll(e.pasos_rueda(ev), "units")
 
-        self.lienzo.bind("<Enter>", lambda _ev: self.lienzo.bind_all("<MouseWheel>", rueda))
-        self.lienzo.bind("<Leave>", lambda _ev: self.lienzo.unbind_all("<MouseWheel>"))
-        self.lienzo.bind("<Destroy>", lambda _ev: self.lienzo.unbind_all("<MouseWheel>"))
+        # Rueda del mouse en Windows, macOS y Linux (se activa solo sobre la vista previa)
+        e.enlazar_rueda(self.lienzo, rueda)
         self.lienzo.bind("<Configure>", self._al_cambiar_tamano)
 
         self.zona_previa.update_idletasks()

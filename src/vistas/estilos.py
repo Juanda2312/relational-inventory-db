@@ -2,6 +2,7 @@
 Para cambiar los colores de toda la aplicación basta con editar las constantes."""
 import tkinter as tk
 from tkinter import ttk
+import sys
 
 # --- Paleta ---
 FONDO = "#F1F5F9"
@@ -21,7 +22,7 @@ FILA_IMPAR = "#F8FAFC"
 SELECCION = "#DBEAFE"
 
 # --- Tipografías ---
-FAMILIA = "Segoe UI"
+FAMILIA = {"win32": "Segoe UI", "darwin": "Helvetica Neue"}.get(sys.platform, "DejaVu Sans")
 FUENTE = (FAMILIA, 10)
 FUENTE_B = (FAMILIA, 10, "bold")
 FUENTE_PEQ_B = (FAMILIA, 9, "bold")
@@ -139,3 +140,26 @@ def centrar(ventana, ancho, alto, padre=None):
         x = (ventana.winfo_screenwidth() - ancho) // 2
         y = (ventana.winfo_screenheight() - alto) // 2
     ventana.geometry(f"{ancho}x{alto}+{max(x, 0)}+{max(y, 0)}")
+
+def pasos_rueda(ev):
+    """Unidades a desplazar (negativo = arriba) en Windows, macOS y Linux."""
+    if ev.num == 4:
+        return -1
+    if ev.num == 5:
+        return 1
+    if sys.platform == "darwin":
+        return -ev.delta
+    return -(ev.delta // 120)
+
+def enlazar_rueda(lienzo, accion):
+    """Activa la rueda mientras el mouse está sobre el lienzo."""
+    def entrar(_):
+        lienzo.bind_all("<MouseWheel>", accion)
+        lienzo.bind_all("<Button-4>", accion)
+        lienzo.bind_all("<Button-5>", accion)
+    def salir(_):
+        for ev in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            lienzo.unbind_all(ev)
+    lienzo.bind("<Enter>", entrar)
+    lienzo.bind("<Leave>", salir)
+    lienzo.bind("<Destroy>", salir)

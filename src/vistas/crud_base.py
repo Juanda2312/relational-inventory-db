@@ -211,13 +211,12 @@ class CrudVista:
         def rueda(ev):
             try:
                 if marco.winfo_reqheight() > lienzo.winfo_height():
-                    lienzo.yview_scroll(-1 * (ev.delta // 120), "units")
+                    lienzo.yview_scroll(e.pasos_rueda(ev), "units")
             except tk.TclError:
                 pass
 
-        lienzo.bind("<Enter>", lambda _ev: lienzo.bind_all("<MouseWheel>", rueda))
-        lienzo.bind("<Leave>", lambda _ev: lienzo.unbind_all("<MouseWheel>"))
-        lienzo.bind("<Destroy>", lambda _ev: lienzo.unbind_all("<MouseWheel>"))
+        # Rueda del mouse en Windows, macOS y Linux (se activa solo sobre este panel)
+        e.enlazar_rueda(lienzo, rueda)
 
         for campo in self.campos:
             if campo.tipo != "check":
