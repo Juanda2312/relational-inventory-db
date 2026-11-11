@@ -8,9 +8,15 @@ Proyecto final de **Bases de Datos I** — Programa de Ingeniería de Sistemas y
 
 ## Prueba la demo (sin instalar nada)
 
-[**Descargar ProveedoresDemo.exe**](https://github.com/Juanda2312/relational-inventory-db/releases/latest) (Windows x64, un solo archivo)
+[**Ir a las descargas**](https://github.com/Juanda2312/relational-inventory-db/releases/latest)
 
-No necesitas Docker, SQL Server, ODBC ni Python. Descárgalo y ábrelo con doble clic.
+No necesitas Docker, SQL Server, ODBC ni Python. Descarga el archivo de tu sistema y ábrelo.
+
+| Sistema | Archivo | Cómo abrirlo |
+|---------|---------|--------------|
+| Windows (x64) | `ProveedoresDemo.exe` | Doble clic |
+| Linux (x64) | `ProveedoresDemo-linux` | `chmod +x ProveedoresDemo-linux` y luego `./ProveedoresDemo-linux` |
+| macOS (Apple Silicon) | `ProveedoresDemo-macos.zip` | Descomprime y abre `ProveedoresDemo.app` con clic derecho → *Abrir* |
 
 | Usuario | Contraseña | Rol | Qué puede hacer |
 |---------|------------|-----|-----------------|
@@ -18,7 +24,20 @@ No necesitas Docker, SQL Server, ODBC ni Python. Descárgalo y ábrelo con doble
 | `tradicional` | `demo1234` | Tradicional | Entidades, transacciones, consultas y reportes |
 | `esporadico` | `demo1234` | Esporádico | Solo consultas |
 
-**Windows puede mostrar «Windows protegió tu PC».** El archivo no está firmado digitalmente. Pulsa *Más información* → *Ejecutar de todas formas*.
+**Los archivos no están firmados digitalmente**, así que cada sistema puede mostrar un aviso la primera vez:
+
+- **Windows:** «Windows protegió tu PC». Pulsa *Más información* → *Ejecutar de todas formas*.
+- **macOS:** «no se puede abrir porque no se puede verificar al desarrollador». Haz clic derecho sobre la app → *Abrir* → *Abrir*. Si sigue bloqueada, ejecuta `xattr -cr ProveedoresDemo.app` en la terminal y vuelve a intentarlo.
+- **Linux:** si no abre con doble clic, ejecútalo desde la terminal. Fue compilado en Ubuntu 22.04, así que necesita una distribución con glibc 2.35 o superior.
+
+**Dónde se guardan los datos.** La base `demo.db` y la carpeta `reportes` se guardan aquí, nunca junto al ejecutable:
+
+| Sistema | Carpeta |
+|---------|---------|
+| Windows | `%LOCALAPPDATA%\ProveedoresDemo` |
+| Linux y macOS | `~/.proveedores_demo` |
+
+La base se crea sola la primera vez, con datos de ejemplo. Para volver a empezar, cierra la app y borra esa carpeta. Se puede cambiar la ubicación con la variable de entorno `DATOS_DEMO_DIR`.
 
 **Dónde se guardan los datos.** En `%LOCALAPPDATA%\ProveedoresDemo` (la base `demo.db` y la carpeta `reportes`), nunca junto al `.exe`. La base se crea sola la primera vez, con datos de ejemplo. Para volver a empezar, cierra la app y borra esa carpeta. Se puede cambiar la ubicación con la variable de entorno `DATOS_DEMO_DIR`.
 
@@ -48,7 +67,7 @@ Es una **aplicación de escritorio**. El enunciado prohíbe usar frameworks, as�
 | Base de datos (original) | Microsoft SQL Server | Versión académica, en el repositorio original |
 | Reportes | `reportlab` y `pymupdf` | Generar los PDF y mostrar la vista previa |
 | Seguridad | `hashlib` (PBKDF2) | Cifrar las contraseñas |
-| Empaquetado | PyInstaller | Solo para compilar el `.exe` |
+| Empaquetado | PyInstaller y GitHub Actions | Compilar los ejecutables de Windows, Linux y macOS |
 
 Tkinter, `reportlab` y `pymupdf` son librerías, no frameworks.
 
@@ -161,6 +180,7 @@ La aplicación se divide en tres capas:
 
 ```text
 relational-inventory-db/
+├── .github/workflows/      # build.yml: compila los ejecutables en Windows, Linux y macOS
 ├── src/
 │   ├── main.py             # prepara la base, arma las piezas y arranca la aplicación
 │   ├── configuracion/      # rutas de la carpeta de datos del usuario
@@ -189,9 +209,13 @@ relational-inventory-db/
 
 ## Ejecutar desde el código fuente
 
-Requiere Python 3 con Tkinter (viene incluido en el instalador oficial de Windows).
+Requiere Python 3.10 o superior con Tkinter.
 
-```powershell
+- **Windows:** viene incluido en el instalador oficial de python.org.
+- **macOS:** usa el Python de python.org (trae un Tk moderno). El Python del sistema o el de Homebrew sin `python-tk` suelen dar problemas.
+- **Linux:** instala Tkinter con `sudo apt install python3-tk` (Debian/Ubuntu).
+
+```bash
 git clone https://github.com/Juanda2312/relational-inventory-db
 cd relational-inventory-db
 pip install -r requirements.txt
@@ -206,12 +230,24 @@ La primera vez se crea la base de la demo en la carpeta de datos del usuario. En
 python -m unittest discover -s tests -t . -v
 ```
 
-### Compilar el `.exe`
+### Compilar los ejecutables
 
-```powershell
-pip install -r requirements-build.txt
-pyinstaller --noconfirm --onefile --windowed --name ProveedoresDemo --paths src src/main.py
+Los ejecutables se generan con GitHub Actions: **Actions → Build demo → Run workflow**. Si escribes la etiqueta de un Release existente (por ejemplo `v1.0-demo`), los archivos de los tres sistemas se suben a ese Release; si la dejas vacía, quedan como artefactos de la ejecución. PyInstaller no compila de forma cruzada, por eso cada sistema se compila en su propio runner.
+
+Para compilar en local, en el sistema que quieras (con `pip install -r requirements-build.txt`):
+
+```bash
+# Windows
+pyinstaller --noconfirm --onefile --windowed --name ProveedoresDemo --paths src --collect-all pymupdf src/main.py
+
+# Linux
+pyinstaller --noconfirm --onefile --name ProveedoresDemo --paths src --collect-all pymupdf src/main.py
+
+# macOS
+pyinstaller --noconfirm --onedir --windowed --name ProveedoresDemo --paths src --collect-all pymupdf src/main.py
 ```
+
+Si Windows Defender marca el `.exe`, compila con `--onedir` y publica un `.zip` de la carpeta `dist\ProveedoresDemo`.
 
 El resultado queda en `dist\ProveedoresDemo.exe`. Si la vista previa de los reportes dice «Falta la librería PyMuPDF», añade `--collect-all pymupdf` al comando. Si Windows Defender marca el archivo, compila con `--onedir` y publica un `.zip` de la carpeta `dist\ProveedoresDemo`.
 
